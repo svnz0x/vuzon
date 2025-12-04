@@ -1,13 +1,24 @@
 const express = require('express');
 const router = express.Router();
+const { z } = require('zod');
 const { getClient, fetchAllPages, updateRuleEnabled } = require('../services/cloudflare');
 
 const { CF_ACCOUNT_ID, CF_ZONE_ID, DOMAIN } = process.env;
 
-const LOCAL_PART_REGEX = /^[A-Za-z0-9.-]+$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// --- Esquemas de Validación (Zod) ---
+const addressSchema = z.object({
+  email: z.string().email({ message: "Email inválido" })
+});
 
-// Helper para envolver rutas async y pasar errores al middleware
+const ruleSchema = z.object({
+  localPart: z.string()
+    .min(1, "El alias no puede estar vacío")
+    .regex(/^[a-z0-9.-]+$/i, "El alias solo puede contener letras, números, puntos y guiones"),
+  destEmail: z.string().email("Email de destino inválido"),
+  name: z.string().optional()
+});
+
+// Helper para envolver rutas async
 const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 // --- Destinatarios ---
@@ -18,8 +29,13 @@ router.get('/addresses', asyncHandler(async (req, res) => {
 }));
 
 router.post('/addresses', asyncHandler(async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email requerido' });
+  // Validación
+  const result = addressSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ error: result.error.issues[0].message });
+  }
+
+  const { email } = result.data;
   const r = await getClient().post(`/accounts/${CF_ACCOUNT_ID}/email/routing/addresses`, { email });
   res.json(r.data);
 }));
@@ -37,26 +53,20 @@ router.get('/rules', asyncHandler(async (req, res) => {
 }));
 
 router.post('/rules', asyncHandler(async (req, res) => {
-  const { localPart, destEmail, name } = req.body || {};
-  const normalizedLocalPart = typeof localPart === 'string' ? localPart.trim() : '';
-  const normalizedDestEmail = typeof destEmail === 'string' ? destEmail.trim() : '';
-
-  if (!normalizedLocalPart || !normalizedDestEmail) {
-    return res.status(400).json({ error: 'Alias y destino requeridos' });
-  }
-  if (!LOCAL_PART_REGEX.test(normalizedLocalPart)) {
-    return res.status(400).json({ error: 'El alias contiene caracteres inválidos' });
-  }
-  if (!EMAIL_REGEX.test(normalizedDestEmail)) {
-    return res.status(400).json({ error: 'Email de destino inválido' });
+  // Validación
+  const result = ruleSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ error: result.error.issues[0].message });
   }
 
-  const alias = `${normalizedLocalPart}@${DOMAIN}`;
+  const { localPart, destEmail, name } = result.data;
+  const alias = `${localPart}@${DOMAIN}`;
+
   const body = {
     enabled: true,
-    name: name || `${alias} -> ${normalizedDestEmail}`,
+    name: name || `${alias} -> ${destEmail}`,
     matchers: [{ type: 'literal', field: 'to', value: alias }],
-    actions: [{ type: 'forward', value: [normalizedDestEmail] }]
+    actions: [{ type: 'forward', value: [destEmail] }]
   };
   
   const r = await getClient().post(`/zones/${CF_ZONE_ID}/email/routing/rules`, body);
