@@ -40,12 +40,14 @@ function vuzonApp() {
 
     async fetchDests() {
       const res = await fetch('/api/addresses');
+      if (res.status === 401) return this.handleAuthError();
       const data = await res.json();
       if (data.success) this.destinations = data.result || [];
     },
 
     async fetchRules() {
       const res = await fetch('/api/rules');
+      if (res.status === 401) return; 
       const data = await res.json();
       if (data.success) this.rules = data.result || [];
     },
@@ -60,12 +62,18 @@ function vuzonApp() {
           body: JSON.stringify(this.newRule)
         });
         const data = await res.json();
-        if (res.ok) {
+        
+        if (res.ok && data.success) {
           this.showToast('Alias creado correctamente');
           this.newRule.localPart = '';
-          await this.fetchRules();
+          // Actualización optimista: Añadir al inicio de la lista
+          if (data.result) {
+            this.rules.unshift(data.result);
+          } else {
+            await this.fetchRules(); // Fallback por si la API cambia
+          }
         } else {
-          throw new Error(data.error);
+          throw new Error(data.error || data.errors?.[0]?.message || 'Error desconocido');
         }
       } catch (e) {
         this.showToast(e.message, 'error');
@@ -80,27 +88,35 @@ function vuzonApp() {
 
     async toggleRule(rule) {
       const action = rule.enabled ? 'disable' : 'enable';
+      const originalState = rule.enabled;
+      
+      // UI Optimista inmediata
+      rule.enabled = !rule.enabled;
+
       try {
         const res = await fetch(`/api/rules/${rule.id}/${action}`, { method: 'POST' });
         if (!res.ok) throw new Error();
-        rule.enabled = !rule.enabled; // Optimistic update
         this.showToast(`Regla ${rule.enabled ? 'habilitada' : 'deshabilitada'}`);
       } catch (e) {
+        // Revertir si falla
+        rule.enabled = originalState;
         this.showToast('Error al cambiar estado', 'error');
-        await this.fetchRules(); // Revertir si falla
       }
     },
 
     async deleteRule(id) {
       if (!confirm('¿Borrar este alias?')) return;
+      // UI Optimista: quitar visualmente primero (opcional, aquí lo hacemos al confirmar éxito)
       try {
         const res = await fetch(`/api/rules/${id}`, { method: 'DELETE' });
         if (res.ok) {
           this.rules = this.rules.filter(r => r.id !== id);
           this.showToast('Alias eliminado');
+        } else {
+            this.showToast('Error al eliminar', 'error');
         }
       } catch (e) {
-        this.showToast('Error al eliminar', 'error');
+        this.showToast('Error de conexión', 'error');
       }
     },
 
@@ -112,13 +128,18 @@ function vuzonApp() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: this.newDestEmail })
         });
-        if (res.ok) {
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
           this.showToast('Destinatario añadido (verifica tu email)');
           this.newDestEmail = '';
-          await this.fetchDests();
+          if (data.result) {
+            this.destinations.unshift(data.result);
+          } else {
+            await this.fetchDests();
+          }
         } else {
-          const d = await res.json();
-          this.showToast(d.error || 'Error', 'error');
+          this.showToast(data.error || 'Error al añadir', 'error');
         }
       } catch (e) {
         this.showToast('Error de conexión', 'error');
@@ -128,18 +149,23 @@ function vuzonApp() {
     async deleteDestination(id) {
       if (!confirm('¿Borrar destinatario?')) return;
       try {
-        await fetch(`/api/addresses/${id}`, { method: 'DELETE' });
-        this.destinations = this.destinations.filter(d => d.id !== id);
-        this.showToast('Destinatario eliminado');
+        const res = await fetch(`/api/addresses/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            this.destinations = this.destinations.filter(d => d.id !== id);
+            this.showToast('Destinatario eliminado');
+        }
       } catch (e) {
         this.showToast('Error al eliminar', 'error');
       }
     },
 
+    handleAuthError() {
+      this.showToast('Sesión expirada o no autorizada. Recarga la página.', 'error');
+    },
+
     // Helpers UI
     getRuleName(rule) {
-      // Intenta obtener el nombre, si es un ID largo (defecto de CF), usa el matcher
-      return (rule.name && rule.name.length < 30) ? rule.name : this.getRuleMatch(rule);
+      return (rule.name && rule.name.length < 50) ? rule.name : this.getRuleMatch(rule);
     },
     getRuleMatch(rule) {
       return rule.matchers?.[0]?.value || 'Unknown';
