@@ -37,9 +37,10 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-eval'", "https://cdn.jsdelivr.net"], 
-      styleSrc: ["'self'", "'unsafe-inline'"], // <-- LÍNEA AÑADIDA PARA CORREGIR EL CSS
+      styleSrc: ["'self'", "'unsafe-inline'"], // Permite CSS local y estilos inline (Alpine.js)
       imgSrc: ["'self'", "data:", "https://github.com"],
       connectSrc: ["'self'"],
+      upgradeInsecureRequests: null, // <-- IMPORTANTE: Desactiva forzar HTTPS en local
     },
   },
 }));
