@@ -49,11 +49,11 @@ CF_ZONE_ID=asjdfkdlñjsañlkfjdsañlkfjñalskjfklsa
 DOMAIN=vuzon.cc
 
 # App
-# (https) NODE_ENV=production
-# (http) NODE_ENV=development
+# 1 (https) NODE_ENV=production
+# 2 (http) NODE_ENV=development
 PORT=8001
-# BASE_URL=http://localhost:8001
-BASE_URL=https://vuzon.cc
+# 1 (production) BASE_URL=https://vuzon.cc
+# 2 (development) BASE_URL=http://localhost:8001
 
 # AUTH
 AUTH_USER=admin
