@@ -1,5 +1,6 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
+# Copiamos solo los archivos de dependencias primero para aprovechar la caché de Docker
 COPY package*.json ./
 RUN npm install --omit=dev --ignore-scripts
 
@@ -8,8 +9,11 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 USER node
+# Copiamos node_modules de la etapa anterior
 COPY --from=deps --chown=node:node /app/node_modules ./node_modules
+# Copiamos el resto del código
 COPY --chown=node:node . .
+
 EXPOSE 3000
 CMD ["node", "server.js"]
 
