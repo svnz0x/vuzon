@@ -14,7 +14,9 @@ COPY --from=deps --chown=node:node /app/node_modules ./node_modules
 # Copiamos el resto del código
 COPY --chown=node:node . .
 
-EXPOSE 3000
+EXPOSE 8001 
+# ^^^ CAMBIO AQUÍ (antes era 3000)
+
 CMD ["node", "server.js"]
 
 LABEL org.opencontainers.image.title="Vuzon"
