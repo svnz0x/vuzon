@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - vuzon</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/icons/favicon.ico">
+  <style>
+    body { display: flex; align-items: center; justify-content: center; background-color: #f9fafb; }
+    @media (prefers-color-scheme: dark) { body { background-color: #000; } }
+    .login-card { width: 100%; max-width: 400px; padding: 2rem; display: grid; gap: 1.5rem; }
+    .brand { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; }
+    .error-msg { background: rgba(229, 62, 62, 0.15); color: #e53e3e; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem; text-align: center; border: 1px solid rgba(229, 62, 62, 0.2); }
+  </style>
+</head>
+<body>
+  <section class="login-card">
+    <div class="brand">
+      <img src="/icons/icon-192.png" width="40" height="40" alt="">
+      vuzon
+    </div>
+    
+    <form action="/login" method="POST" class="stack">
+      <div id="error" class="error-msg" style="display: none;">Credenciales incorrectas</div>
+
+      <div>
+        <label for="username">Usuario</label>
+        <input type="text" id="username" name="username" style="width: 100%" required autofocus>
+      </div>
+
+      <div>
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" style="width: 100%" required>
+      </div>
+
+      <button type="submit" style="width: 100%; justify-content: center;">Entrar</button>
+    </form>
+  </section>
+
+  <script>
+    if (new URLSearchParams(window.location.search).has('error')) {
+      document.getElementById('error').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
