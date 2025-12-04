@@ -43,21 +43,21 @@ Crea un `.env` en la raíz del proyecto:
 
 ```env
 # Cloudflare Email Routing
-CF_API_TOKEN=
-CF_ACCOUNT_ID=
-CF_ZONE_ID=
-DOMAIN=
+CF_API_TOKEN=hjkhsakflhlfkjdhasfjkhaslkfhaljfsalfñsaljfj
+CF_ACCOUNT_ID=djshfaljdflasñjfkasjfkljsadldfjdsakljfklasjf
+CF_ZONE_ID=asjdfkdlñjsañlkfjdsañlkfjñalskjfklsa
+DOMAIN=vuzon.cc
 
 # App
 # (https) NODE_ENV=production
 # (http) NODE_ENV=development
 PORT=8001
-BASE_URL=
+BASE_URL=http://localhost:8001
 
 # AUTH
-AUTH_USER=
-AUTH_PASS=
-SESSION_SECRET=
+AUTH_USER=admin
+AUTH_PASS=prueba
+SESSION_SECRET=1234567890
 ```
 
 ---
