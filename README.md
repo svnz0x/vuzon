@@ -49,7 +49,7 @@ CF_ZONE_ID=
 DOMAIN=
 
 # App
-NODE_ENV=production/development
+NODE_ENV=production (https) / development (http)
 PORT=8001
 BASE_URL=
 
