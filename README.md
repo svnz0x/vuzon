@@ -50,7 +50,7 @@ DOMAIN=
 
 # App
 NODE_ENV=production
-PORT=
+PORT=8001
 BASE_URL=
 
 # AUTH
