@@ -37,6 +37,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-eval'", "https://cdn.jsdelivr.net"], 
+      styleSrc: ["'self'", "'unsafe-inline'"], // <-- LÍNEA AÑADIDA PARA CORREGIR EL CSS
       imgSrc: ["'self'", "data:", "https://github.com"],
       connectSrc: ["'self'"],
     },
