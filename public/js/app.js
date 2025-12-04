@@ -47,7 +47,7 @@ function vuzonApp() {
 
     async fetchRules() {
       const res = await fetch('/api/rules');
-      if (res.status === 401) return; 
+      if (res.status === 401) return this.handleAuthError();
       const data = await res.json();
       if (data.success) this.rules = data.result || [];
     },
@@ -66,11 +66,10 @@ function vuzonApp() {
         if (res.ok && data.success) {
           this.showToast('Alias creado correctamente');
           this.newRule.localPart = '';
-          // Actualización optimista: Añadir al inicio de la lista
           if (data.result) {
             this.rules.unshift(data.result);
           } else {
-            await this.fetchRules(); // Fallback por si la API cambia
+            await this.fetchRules();
           }
         } else {
           throw new Error(data.error || data.errors?.[0]?.message || 'Error desconocido');
@@ -90,7 +89,6 @@ function vuzonApp() {
       const action = rule.enabled ? 'disable' : 'enable';
       const originalState = rule.enabled;
       
-      // UI Optimista inmediata
       rule.enabled = !rule.enabled;
 
       try {
@@ -98,7 +96,6 @@ function vuzonApp() {
         if (!res.ok) throw new Error();
         this.showToast(`Regla ${rule.enabled ? 'habilitada' : 'deshabilitada'}`);
       } catch (e) {
-        // Revertir si falla
         rule.enabled = originalState;
         this.showToast('Error al cambiar estado', 'error');
       }
@@ -106,7 +103,6 @@ function vuzonApp() {
 
     async deleteRule(id) {
       if (!confirm('¿Borrar este alias?')) return;
-      // UI Optimista: quitar visualmente primero (opcional, aquí lo hacemos al confirmar éxito)
       try {
         const res = await fetch(`/api/rules/${id}`, { method: 'DELETE' });
         if (res.ok) {
@@ -159,8 +155,17 @@ function vuzonApp() {
       }
     },
 
+    // --- NUEVO: Logout ---
+    async logout() {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/logout';
+      document.body.appendChild(form);
+      form.submit();
+    },
+
     handleAuthError() {
-      this.showToast('Sesión expirada o no autorizada. Recarga la página.', 'error');
+      window.location.href = '/login';
     },
 
     // Helpers UI
