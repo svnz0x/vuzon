@@ -52,7 +52,8 @@ DOMAIN=vuzon.cc
 # (https) NODE_ENV=production
 # (http) NODE_ENV=development
 PORT=8001
-BASE_URL=http://localhost:8001
+# BASE_URL=http://localhost:8001
+BASE_URL=https://vuzon.cc
 
 # AUTH
 AUTH_USER=admin
