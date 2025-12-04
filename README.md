@@ -1,12 +1,3 @@
-# <img width="22" height="22" alt="maskable-192" src="https://github.com/user-attachments/assets/5a806de1-f7a2-4f56-863c-91a5b6e1b89a" /> vuzon
-
-<img width="205" height="152" alt="1-clean" src="https://github.com/user-attachments/assets/16fff53a-075e-4316-85ae-6ef7cf0fc0f3" />
-
-<img width="205" height="152" alt="2-clean" src="https://github.com/user-attachments/assets/3ce48068-8db5-47a2-87cb-83791ca2d5bc" />
-
-<img width="205" height="152" alt="3-clean" src="https://github.com/user-attachments/assets/2576cc6e-f137-4436-9a4a-0857329d9ee7" />
-
-
 **vuzon** es una UI ligera que usa la **API de Cloudflare Email Routing** para crear y gestionar **alias** y **destinatarios** de forma sencilla.
 
 - 🚀 **Autohospedaje**: despliega tu propia instancia con **Docker Compose**.
@@ -51,18 +42,20 @@
 Crea un `.env` en la raíz del proyecto:
 
 ```env
-# === Cloudflare Email Routing ===
-CF_API_TOKEN=your-cloudflare-api-token
-CF_ACCOUNT_ID=your-cloudflare-account-id
-CF_ZONE_ID=your-cloudflare-zone-id
+# Cloudflare Email Routing
+CF_API_TOKEN=
+CF_ACCOUNT_ID=
+CF_ZONE_ID=
+DOMAIN=
 
-# === App ===
+# App
 NODE_ENV=production
-PORT=3000
-BASE_URL=https://vuzon.example.com
+PORT=
+BASE_URL=
 
-# Dominio gestionado por Cloudflare Email Routing
-DOMAIN=example.com
+# AUTH
+AUTH_USER=
+AUTH_PASS=
 ```
 
 ---
@@ -75,18 +68,12 @@ DOMAIN=example.com
 ```yaml
 services:
   vuzon:
-    image: ghcr.io/svnz0x/vuzon-docker
+    image: ghcr.io/svnz0x/vuzon
     env_file:
       - .env
     restart: unless-stopped
     ports:
-      - "${PORT:-3000}:3000"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health || curl -fsS http://localhost:3000/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+      - "8001:8001"
 ```
 
 
@@ -94,7 +81,7 @@ services:
 
 ```bash
 docker compose up -d
-# Abre http://localhost:3000
+# Abre http://localhost:8001
 ```
 
 ---
@@ -104,7 +91,7 @@ docker compose up -d
 ```bash
 npm install
 npm start
-# App en http://localhost:3000
+# App en http://localhost:8001
 ```
 
 > Requiere Node.js ≥ 18.
