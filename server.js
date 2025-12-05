@@ -5,35 +5,38 @@ const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const pino = require('pino-http')();
 const path = require('path');
+const crypto = require('crypto'); // Nuevo: para generar secretos
 require('dotenv').config();
 
 const { updateRuleEnabled, setCfClientForTesting } = require('./src/services/cloudflare');
 const apiRoutes = require('./src/routes/api');
 
+// CAMBIO 1: Puerto interno fijo. Ya no se lee del .env
+const PORT = 8001;
+
 const { 
-  PORT = 8001, 
   CF_API_TOKEN, 
   CF_ACCOUNT_ID, 
   CF_ZONE_ID, 
   DOMAIN,
   AUTH_USER,
-  AUTH_PASS,
-  SESSION_SECRET
+  AUTH_PASS
 } = process.env;
 
-// Validación de entorno crítico
+// Validación de entorno crítico (Solo lo funcional de Cloudflare)
 if (!CF_API_TOKEN || !CF_ACCOUNT_ID || !CF_ZONE_ID || !DOMAIN) {
-  console.error('FATAL: Faltan variables en .env');
+  console.error('FATAL: Faltan variables de Cloudflare en .env');
   process.exit(1);
 }
 
-// Seguridad: Obligar a cambiar el secreto en producción
-if (process.env.NODE_ENV === 'production' && (!SESSION_SECRET || SESSION_SECRET === 'secret_default_change_me')) {
-  console.error('FATAL: En producción debes configurar un SESSION_SECRET seguro en el archivo .env');
-  process.exit(1);
-}
+// CAMBIO 2: Autogeneración de secreto.
+// Si no hay SESSION_SECRET, generamos uno aleatorio al vuelo.
+// Nota: Esto invalidará las sesiones si la app se reinicia, pero simplifica la config.
+const finalSessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
-const finalSessionSecret = SESSION_SECRET || 'secret_default_change_me';
+if (!process.env.SESSION_SECRET) {
+  console.log('INFO: SESSION_SECRET no detectado, usando uno autogenerado (las sesiones se cerrarán al reiniciar).');
+}
 
 const app = express();
 
@@ -58,7 +61,11 @@ app.use(helmet({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- Sesión ---
+// CAMBIO 3: Configuración de Cookie "Universal"
+// Asumimos secure: false por defecto para evitar problemas en local/http,
+// a menos que se detecte explícitamente producción con HTTPS.
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(session({
   name: 'vuzon_sid',
   secret: finalSessionSecret,
@@ -71,7 +78,9 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     httpOnly: true, 
-    secure: process.env.NODE_ENV === 'production',
+    // Simplificación: secure false evita problemas de login en redes locales.
+    // Si usas un proxy HTTPS (como Cloudflare Tunnel o Nginx), configura 'trust proxy'.
+    secure: isProduction && process.env.BASE_URL?.startsWith('https'), 
     maxAge: 24 * 60 * 60 * 1000,
     sameSite: 'lax'
   }
@@ -98,14 +107,22 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  if (username === AUTH_USER && password === AUTH_PASS) {
-    req.session.authenticated = true;
-    req.session.user = username;
-    req.log.info(`Usuario ${username} logueado`);
-    return res.redirect('/');
+  // Validación simple: Si no hay AUTH_USER configurado, cualquiera entra (Modo abierto)
+  // O forzar autenticación si están las variables.
+  if (AUTH_USER && AUTH_PASS) {
+      if (username === AUTH_USER && password === AUTH_PASS) {
+        req.session.authenticated = true;
+        req.session.user = username;
+        req.log.info(`Usuario ${username} logueado`);
+        return res.redirect('/');
+      }
+      req.log.warn(`Login fallido: ${username}`);
+      res.redirect('/login?error=1');
+  } else {
+      // Si el usuario no configuró pass, advertir o denegar.
+      // Para simplificar, asumimos que siempre lo configuran según el .env nuevo
+      res.status(500).send("Error: AUTH_USER y AUTH_PASS son requeridos en .env");
   }
-  req.log.warn(`Login fallido: ${username}`);
-  res.redirect('/login?error=1');
 });
 
 app.post('/logout', (req, res) => {
@@ -141,7 +158,8 @@ app.use((err, req, res, next) => {
 });
 
 if (require.main === module) {
-  app.listen(PORT, () => console.log(`App lista en http://0.0.0.0:${PORT}`));
+  // Escuchamos siempre en 8001
+  app.listen(PORT, '0.0.0.0', () => console.log(`App lista en puerto interno ${PORT}`));
 }
 
 module.exports = { app, updateRuleEnabled, setCfClientForTesting };
