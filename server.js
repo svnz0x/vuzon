@@ -2,7 +2,6 @@ const express = require('express');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const session = require('express-session');
-// --- MEJORA: File Store ---
 const FileStore = require('session-file-store')(session);
 const pino = require('pino-http')();
 const path = require('path');
@@ -19,7 +18,7 @@ const {
   DOMAIN,
   AUTH_USER,
   AUTH_PASS,
-  SESSION_SECRET = 'secret_default_change_me' 
+  SESSION_SECRET
 } = process.env;
 
 // Validación de entorno crítico
@@ -27,6 +26,14 @@ if (!CF_API_TOKEN || !CF_ACCOUNT_ID || !CF_ZONE_ID || !DOMAIN) {
   console.error('FATAL: Faltan variables en .env');
   process.exit(1);
 }
+
+// Seguridad: Obligar a cambiar el secreto en producción
+if (process.env.NODE_ENV === 'production' && (!SESSION_SECRET || SESSION_SECRET === 'secret_default_change_me')) {
+  console.error('FATAL: En producción debes configurar un SESSION_SECRET seguro en el archivo .env');
+  process.exit(1);
+}
+
+const finalSessionSecret = SESSION_SECRET || 'secret_default_change_me';
 
 const app = express();
 
@@ -54,11 +61,10 @@ app.use(express.urlencoded({ extended: true }));
 // --- Sesión ---
 app.use(session({
   name: 'vuzon_sid',
-  secret: SESSION_SECRET,
-  // --- MEJORA: Persistencia en disco ---
+  secret: finalSessionSecret,
   store: new FileStore({
     path: './sessions',
-    ttl: 86400, // 24 horas en segundos
+    ttl: 86400,
     retries: 0
   }),
   resave: false,
@@ -66,7 +72,7 @@ app.use(session({
   cookie: { 
     httpOnly: true, 
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000, // 24 horas
+    maxAge: 24 * 60 * 60 * 1000,
     sameSite: 'lax'
   }
 }));
@@ -74,15 +80,13 @@ app.use(session({
 // Rate Limit
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  // --- MEJORA: Límite aumentado ---
-  max: 500, // Aumentado de 100 a 500 para uso intensivo de UI
+  max: 500,
   standardHeaders: true,
   legacyHeaders: false,
 });
 app.use('/api/', limiter);
 
 // --- Estáticos ---
-// index: false evita servir index.html automáticamente sin auth
 app.use(express.static('public', { index: false }));
 app.use('/icons', express.static('icons'));
 
