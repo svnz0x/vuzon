@@ -9,23 +9,23 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/svnz0x/pullpilot/stargazers">
-    <img src="https://img.shields.io/github/stars/svnz0x/pullpilot?style=social" alt="GitHub stars"/>
+  <a href="https://github.com/svnz0x/vuzon/stargazers">
+    <img src="https://img.shields.io/github/stars/svnz0x/vuzon?style=social" alt="GitHub stars"/>
   </a>
   &nbsp;
-  <a href="https://github.com/svnz0x/pullpilot/actions">
-    <img src="https://github.com/svnz0x/pullpilot/actions/workflows/ci.yml/badge.svg" alt="CI status"/>
+  <a href="https://github.com/svnz0x/vuzon/actions">
+    <img src="https://github.com/svnz0x/vuzon/actions/workflows/ci.yml/badge.svg" alt="CI status"/>
   </a>
   &nbsp;
-  <a href="https://github.com/svnz0x/pullpilot/issues">
-    <img src="https://img.shields.io/github/issues/svnz0x/pullpilot" alt="GitHub issues"/>
+  <a href="https://github.com/svnz0x/vuzon/issues">
+    <img src="https://img.shields.io/github/issues/svnz0x/vuzon" alt="GitHub issues"/>
   </a>
   &nbsp;
   <a href="./LICENSE">
-    <img src="https://img.shields.io/github/license/svnz0x/pullpilot" alt="License"/>
+    <img src="https://img.shields.io/github/license/svnz0x/vuzon" alt="License"/>
   </a>
   &nbsp;
-  <img src="https://img.shields.io/github/last-commit/svnz0x/pullpilot" alt="Last commit"/>
+  <img src="https://img.shields.io/github/last-commit/svnz0x/vuzon" alt="Last commit"/>
 </p>
 
 <p align="center">
