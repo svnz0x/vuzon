@@ -19,7 +19,6 @@ UI ligera que usa la **API de Cloudflare Email Routing** para crear y gestionar 
 - [Rutas del backend](#rutas-del-backend)
 - [Uso básico](#uso-básico)
 - [Seguridad](#seguridad)
-- [Licencia](#licencia)
 
 ---
 
