@@ -45,7 +45,6 @@ Crea un `.env` en la raíz del proyecto:
 
 ```env
 # Cloudflare Email Routing (Requerido)
-# Token con permisos: Zone.Email Routing Rules (Edit) y Account.Email Routing Addresses (Edit)
 CF_API_TOKEN=
 CF_ACCOUNT_ID=
 CF_ZONE_ID=
