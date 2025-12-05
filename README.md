@@ -44,23 +44,19 @@ UI ligera que usa la **API de Cloudflare Email Routing** para crear y gestionar 
 Crea un `.env` en la raíz del proyecto:
 
 ```env
-# Cloudflare Email Routing
-CF_API_TOKEN=hjkhsakflhlfkjdhasfjkhaslkfhaljfsalfñsaljfj
-CF_ACCOUNT_ID=djshfaljdflasñjfkasjfkljsadldfjdsakljfklasjf
-CF_ZONE_ID=asjdfkdlñjsañlkfjdsañlkfjñalskjfklsa
-DOMAIN=vuzon.cc
+# Cloudflare Email Routing (Requerido)
+# Token con permisos: Zone.Email Routing Rules (Edit) y Account.Email Routing Addresses (Edit)
+CF_API_TOKEN=
+CF_ACCOUNT_ID=
+CF_ZONE_ID=
+DOMAIN=
 
-# App
-# 1 (https) NODE_ENV=production
-# 2 (http) NODE_ENV=development
-PORT=8001
-# 1 (production) BASE_URL=https://vuzon.cc
-# 2 (development) BASE_URL=http://localhost:8001
+# Acceso a Vuzon (Requerido)
+AUTH_USER=
+AUTH_PASS=
 
-# AUTH
-AUTH_USER=admin
-AUTH_PASS=prueba
-SESSION_SECRET=1234567890
+# URL base para mejorar seguridad de cookies si usas HTTPS (Opcional)
+# BASE_URL=
 ```
 
 ---
