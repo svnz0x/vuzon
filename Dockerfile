@@ -1,6 +1,5 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
-# Copiamos solo los archivos de dependencias primero para aprovechar la caché de Docker
 COPY package*.json ./
 RUN npm install --omit=dev --ignore-scripts
 
@@ -9,18 +8,14 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 USER node
-# Copiamos node_modules de la etapa anterior
 COPY --from=deps --chown=node:node /app/node_modules ./node_modules
-# Copiamos el resto del código
-COPY --chown=node:node .
-.
+COPY --chown=node:node . .
 
-EXPOSE 8001 
+EXPOSE 8001
 
-# --- MEJORA: Healthcheck ---
-# Comprueba que el servidor responde en /health cada 30s
+# MEJORA: Healthcheck usando Node.js nativo para no depender de wget/curl
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s \
-  CMD wget --quiet --tries=1 --spider http://localhost:8001/health || exit 1
+  CMD node -e "require('http').get('http://localhost:8001/health', (r) => {if (r.statusCode !== 200) process.exit(1);}).on('error', () => process.exit(1))" || exit 1
 
 CMD ["node", "server.js"]
 
