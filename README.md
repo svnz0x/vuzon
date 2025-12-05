@@ -1,3 +1,41 @@
+<p align="center">
+  <img src="./frontend/public/logo.png" alt="pullpilot" width="200"/>
+</p>
+
+<p align="center">
+  <a href="https://ko-fi.com/F2F81PNZRL">
+    <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="ko-fi"/>
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/svnz0x/pullpilot/stargazers">
+    <img src="https://img.shields.io/github/stars/svnz0x/pullpilot?style=social" alt="GitHub stars"/>
+  </a>
+  &nbsp;
+  <a href="https://github.com/svnz0x/pullpilot/actions">
+    <img src="https://github.com/svnz0x/pullpilot/actions/workflows/ci.yml/badge.svg" alt="CI status"/>
+  </a>
+  &nbsp;
+  <a href="https://github.com/svnz0x/pullpilot/issues">
+    <img src="https://img.shields.io/github/issues/svnz0x/pullpilot" alt="GitHub issues"/>
+  </a>
+  &nbsp;
+  <a href="./LICENSE">
+    <img src="https://img.shields.io/github/license/svnz0x/pullpilot" alt="License"/>
+  </a>
+  &nbsp;
+  <img src="https://img.shields.io/github/last-commit/svnz0x/pullpilot" alt="Last commit"/>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/frontend-React%20%2B%20Vite-61DAFB?logo=react&logoColor=white" alt="React + Vite"/>
+  &nbsp;
+  <img src="https://img.shields.io/badge/backend-FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI"/>
+  &nbsp;
+  <img src="https://img.shields.io/badge/infra-Docker%20%2B%20Docker%20Compose-2496ED?logo=docker&logoColor=white" alt="Docker + Docker Compose"/>
+</p>
+
 # vuzon
 
 UI ligera que usa la **API de Cloudflare Email Routing** para crear y gestionar **alias** y **destinatarios** de forma sencilla.
