@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./frontend/public/logo.png" alt="pullpilot" width="200"/>
+  <img src="./public/logo.png" alt="vuzon" width="200"/>
 </p>
 
 <p align="center">
