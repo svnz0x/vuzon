@@ -1,5 +1,5 @@
 const axios = require('axios');
-require('dotenv').config();
+// require('dotenv').config();  <-- ELIMINADO
 
 const { CF_API_TOKEN, CF_ZONE_ID } = process.env;
 
