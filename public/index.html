@@ -124,7 +124,7 @@
               <div class="rule-field">
                 <span class="rule-label">Acciones</span>
                 <div class="btns">
-                  <button class="secondary sm" @click="copyToClipboard(rule.id)">Copiar ID</button>
+                  <button class="secondary sm" @click="copyToClipboard(getRuleMatch(rule))">Copiar Email</button>
                   <button class="secondary sm" @click="toggleRule(rule)">
                     <span x-text="rule.enabled ? 'Deshabilitar' : 'Habilitar'"></span>
                   </button>
