@@ -95,6 +95,9 @@ AUTH_PASS=
 # URL pública, útil si usas HTTPS para asegurar las cookies (Opcional) 
 # BASE_URL=https://vuzon.midominio.com
 # NODE_ENV=production
+
+# Puerto exterior (Opcional)
+# VUZON_PORT=
 ```
 
 ---
