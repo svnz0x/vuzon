@@ -36,10 +36,6 @@
 
 UI ligera que usa la **API de Cloudflare Email Routing** para crear y gestionar **alias** y **destinatarios** de forma sencilla.
 
-- 🚀 **Autohospedaje**: despliega tu propia instancia con **Docker Compose**.
-- ☁️ **Servicio oficial**: también puedes usar https://vuzon.cc/ (actualmente **beta privada**).
-- 🧩 Backend en **Node/Express** con proxy a los endpoints de Cloudflare.
-
 > Qué es Email Routing: https://developers.cloudflare.com/email-routing/
 
 ---
