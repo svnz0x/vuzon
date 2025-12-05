@@ -43,6 +43,11 @@ UI ligera que usa la **API de Cloudflare Email Routing** para crear y gestionar 
 
 Crea un `.env` en la raíz del proyecto:
 
+**Scopes mínimos sugeridos para el token:**
+- **Account → Email Routing Addresses: Read & Edit**
+- **Zone → Email Routing Rules: Read & Edit**
+- **Zone → Email Routing DNS: Edit** (solo si vas a activar Email Routing por API)
+
 ```env
 # Cloudflare Email Routing (Requerido)
 CF_API_TOKEN=
@@ -133,8 +138,3 @@ El backend expone un proxy REST hacia Cloudflare:
 
 - Usa **API Tokens** con **privilegios mínimos** en lugar de la Global API Key.
 - Ubica la app tras un *reverse proxy* con **TLS** y, si procede, añade **autenticación**.
-
-**Scopes mínimos sugeridos para el token:**
-- **Account → Email Routing Addresses: Read & Edit**
-- **Zone → Email Routing Rules: Read & Edit**
-- **Zone → Email Routing DNS: Edit** (solo si vas a activar Email Routing por API)
