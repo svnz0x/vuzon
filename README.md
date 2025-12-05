@@ -96,8 +96,7 @@ AUTH_PASS=
 # BASE_URL=https://vuzon.midominio.com
 # NODE_ENV=production
 
-# Puerto exterior (Opcional)
-# VUZON_PORT=
+# VUZON_PORT=8001
 ```
 
 ---
