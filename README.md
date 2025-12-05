@@ -29,9 +29,9 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/frontend-React%20%2B%20Vite-61DAFB?logo=react&logoColor=white" alt="React + Vite"/>
+  <img src="https://img.shields.io/badge/frontend-Alpine.js-8BC0D0?logo=alpinedotjs&logoColor=white" alt="Alpine.js"/>
   &nbsp;
-  <img src="https://img.shields.io/badge/backend-FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI"/>
+  <img src="https://img.shields.io/badge/backend-Node.js%20%2B%20Express-339933?logo=nodedotjs&logoColor=white" alt="Node.js + Express"/>
   &nbsp;
   <img src="https://img.shields.io/badge/infra-Docker%20%2B%20Docker%20Compose-2496ED?logo=docker&logoColor=white" alt="Docker + Docker Compose"/>
 </p>
