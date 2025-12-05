@@ -2,6 +2,8 @@ const express = require('express');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const session = require('express-session');
+// --- MEJORA: File Store ---
+const FileStore = require('session-file-store')(session);
 const pino = require('pino-http')();
 const path = require('path');
 require('dotenv').config();
@@ -53,6 +55,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
   name: 'vuzon_sid',
   secret: SESSION_SECRET,
+  // --- MEJORA: Persistencia en disco ---
+  store: new FileStore({
+    path: './sessions',
+    ttl: 86400, // 24 horas en segundos
+    retries: 0
+  }),
   resave: false,
   saveUninitialized: false,
   cookie: { 
@@ -66,7 +74,8 @@ app.use(session({
 // Rate Limit
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  // --- MEJORA: Límite aumentado ---
+  max: 500, // Aumentado de 100 a 500 para uso intensivo de UI
   standardHeaders: true,
   legacyHeaders: false,
 });
