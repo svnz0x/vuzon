@@ -79,6 +79,8 @@ services:
     restart: unless-stopped
     ports:
       - "8001:8001"
+    volumes:
+      - ./sessions:/app/sessions
 ```
 
 
