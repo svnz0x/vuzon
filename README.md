@@ -32,6 +32,11 @@
   <img src="https://img.shields.io/badge/infra-Docker%20%2B%20Docker%20Compose-2496ED?logo=docker&logoColor=white" alt="Docker + Docker Compose"/>
 </p>
 
+
+<p align="center">
+  <img src="./assets/dashboard.png" alt="dashboard" width="auto" height="auto">
+</p>
+
 # vuzon
 
 UI ligera que usa la **API de Cloudflare Email Routing** para crear y gestionar **alias** y **destinatarios** de forma sencilla.
