@@ -12,10 +12,15 @@ USER node
 # Copiamos node_modules de la etapa anterior
 COPY --from=deps --chown=node:node /app/node_modules ./node_modules
 # Copiamos el resto del código
-COPY --chown=node:node . .
+COPY --chown=node:node .
+.
 
 EXPOSE 8001 
-# ^^^ CAMBIO AQUÍ (antes era 3000)
+
+# --- MEJORA: Healthcheck ---
+# Comprueba que el servidor responde en /health cada 30s
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s \
+  CMD wget --quiet --tries=1 --spider http://localhost:8001/health || exit 1
 
 CMD ["node", "server.js"]
 
