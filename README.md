@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./public/logo.png" alt="vuzon" width="200"/>
+  <img src="./public/icons/icon-192.png" alt="vuzon" width="200"/>
 </p>
 
 <p align="center">
