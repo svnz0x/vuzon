@@ -5,14 +5,15 @@ const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const pino = require('pino-http')();
 const path = require('path');
-const crypto = require('crypto'); // Nuevo: para generar secretos
+const crypto = require('crypto');
+const fs = require('fs');
 require('dotenv').config();
 
 const { updateRuleEnabled, setCfClientForTesting } = require('./src/services/cloudflare');
 const apiRoutes = require('./src/routes/api');
 
-// CAMBIO 1: Puerto interno fijo. Ya no se lee del .env
-const PORT = 8001;
+// --- Configuración Zero Config ---
+const PORT = 8001; // Puerto interno fijo
 
 const { 
   CF_API_TOKEN, 
@@ -23,22 +24,43 @@ const {
   AUTH_PASS
 } = process.env;
 
-// Validación de entorno crítico (Solo lo funcional de Cloudflare)
+// Validación mínima requerida (solo credenciales de Cloudflare)
 if (!CF_API_TOKEN || !CF_ACCOUNT_ID || !CF_ZONE_ID || !DOMAIN) {
-  console.error('FATAL: Faltan variables de Cloudflare en .env');
+  console.error('FATAL: Faltan variables de Cloudflare en .env (CF_API_TOKEN, CF_ACCOUNT_ID, CF_ZONE_ID, DOMAIN)');
   process.exit(1);
 }
 
-// CAMBIO 2: Autogeneración de secreto.
-// Si no hay SESSION_SECRET, generamos uno aleatorio al vuelo.
-// Nota: Esto invalidará las sesiones si la app se reinicia, pero simplifica la config.
-const finalSessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+// --- Gestión del Secreto de Sesión (Persistente) ---
+const secretFilePath = path.join(__dirname, '.session_secret');
+let finalSessionSecret = process.env.SESSION_SECRET;
 
-if (!process.env.SESSION_SECRET) {
-  console.log('INFO: SESSION_SECRET no detectado, usando uno autogenerado (las sesiones se cerrarán al reiniciar).');
+if (!finalSessionSecret) {
+  // Si el usuario no puso secreto, intentamos leer el generado anteriormente
+  if (fs.existsSync(secretFilePath)) {
+    try {
+      finalSessionSecret = fs.readFileSync(secretFilePath, 'utf-8');
+    } catch (err) {
+      console.error('WARN: No se pudo leer el archivo .session_secret');
+    }
+  }
+  
+  // Si aún no tenemos secreto (ni en env ni en archivo), generamos uno nuevo y lo guardamos
+  if (!finalSessionSecret) {
+    finalSessionSecret = crypto.randomBytes(32).toString('hex');
+    try {
+      fs.writeFileSync(secretFilePath, finalSessionSecret);
+      console.log('INFO: Se ha generado y guardado un nuevo SESSION_SECRET en .session_secret');
+    } catch (err) {
+      console.error('WARN: No se pudo guardar el secreto en disco. Las sesiones se cerrarán al reiniciar el contenedor.');
+    }
+  }
 }
 
 const app = express();
+
+// --- Configuración de Proxy (Vital para Docker) ---
+// Confía en el primer proxy (ej. Nginx, Cloudflare Tunnel, Docker internal network)
+app.set('trust proxy', 1);
 
 // --- Logging ---
 app.use(pino);
@@ -61,10 +83,8 @@ app.use(helmet({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CAMBIO 3: Configuración de Cookie "Universal"
-// Asumimos secure: false por defecto para evitar problemas en local/http,
-// a menos que se detecte explícitamente producción con HTTPS.
-const isProduction = process.env.NODE_ENV === 'production';
+// --- Sesión ---
+const isProductionHttps = process.env.NODE_ENV === 'production' && process.env.BASE_URL?.startsWith('https');
 
 app.use(session({
   name: 'vuzon_sid',
@@ -78,9 +98,8 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     httpOnly: true, 
-    // Simplificación: secure false evita problemas de login en redes locales.
-    // Si usas un proxy HTTPS (como Cloudflare Tunnel o Nginx), configura 'trust proxy'.
-    secure: isProduction && process.env.BASE_URL?.startsWith('https'), 
+    // Secure solo si estamos seguros de que es prod+https, si no false para evitar problemas de login
+    secure: isProductionHttps, 
     maxAge: 24 * 60 * 60 * 1000,
     sameSite: 'lax'
   }
@@ -107,22 +126,20 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  // Validación simple: Si no hay AUTH_USER configurado, cualquiera entra (Modo abierto)
-  // O forzar autenticación si están las variables.
+  
   if (AUTH_USER && AUTH_PASS) {
-      if (username === AUTH_USER && password === AUTH_PASS) {
-        req.session.authenticated = true;
-        req.session.user = username;
-        req.log.info(`Usuario ${username} logueado`);
-        return res.redirect('/');
-      }
-      req.log.warn(`Login fallido: ${username}`);
-      res.redirect('/login?error=1');
-  } else {
-      // Si el usuario no configuró pass, advertir o denegar.
-      // Para simplificar, asumimos que siempre lo configuran según el .env nuevo
-      res.status(500).send("Error: AUTH_USER y AUTH_PASS son requeridos en .env");
+    if (username === AUTH_USER && password === AUTH_PASS) {
+      req.session.authenticated = true;
+      req.session.user = username;
+      req.log.info(`Usuario ${username} logueado`);
+      return res.redirect('/');
+    }
+    req.log.warn(`Login fallido: ${username}`);
+    return res.redirect('/login?error=1');
   }
+  
+  // Si no hay variables de entorno de auth configuradas
+  res.status(500).send('Error: AUTH_USER y AUTH_PASS no están configurados en el .env');
 });
 
 app.post('/logout', (req, res) => {
@@ -158,7 +175,7 @@ app.use((err, req, res, next) => {
 });
 
 if (require.main === module) {
-  // Escuchamos siempre en 8001
+  // Escuchamos en todas las interfaces del contenedor
   app.listen(PORT, '0.0.0.0', () => console.log(`App lista en puerto interno ${PORT}`));
 }
 
