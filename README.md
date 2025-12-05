@@ -44,18 +44,6 @@ UI ligera que usa la **API de Cloudflare Email Routing** para crear y gestionar 
 
 ---
 
-## Tabla de contenidos
-- [Características](#características)
-- [Requisitos](#requisitos)
-- [Variables de entorno](#variables-de-entorno)
-- [Despliegue con Docker Compose](#despliegue-con-docker-compose)
-- [Ejecución local sin Docker](#ejecución-local-sin-docker)
-- [Rutas del backend](#rutas-del-backend)
-- [Uso básico](#uso-básico)
-- [Seguridad](#seguridad)
-
----
-
 ## Características
 - Crear **alias/reglas** que enrutan correos a **destinatarios verificados**.
 - Listado y gestión de **destinatarios** (añadir/eliminar).
