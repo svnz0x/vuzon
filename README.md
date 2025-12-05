@@ -13,10 +13,6 @@
     <img src="https://img.shields.io/github/stars/svnz0x/vuzon?style=social" alt="GitHub stars"/>
   </a>
   &nbsp;
-  <a href="https://github.com/svnz0x/vuzon/actions">
-    <img src="https://github.com/svnz0x/vuzon/actions/workflows/ci.yml/badge.svg" alt="CI status"/>
-  </a>
-  &nbsp;
   <a href="https://github.com/svnz0x/vuzon/issues">
     <img src="https://img.shields.io/github/issues/svnz0x/vuzon" alt="GitHub issues"/>
   </a>
