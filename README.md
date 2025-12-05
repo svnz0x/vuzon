@@ -74,7 +74,8 @@ services:
       - .env
     restart: unless-stopped
     ports:
-      - "8001:8001"
+      # Mapea el puerto del host (configurable o 8001 por defecto) al 8001 fijo del contenedor
+      - "${VUZON_PORT:-8001}:8001"
     volumes:
       - ./sessions:/app/sessions
 ```
